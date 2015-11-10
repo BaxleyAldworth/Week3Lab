@@ -12,61 +12,69 @@ namespace Week3Lab.Controller
     public class MessagesController : ApiController
     {
         //Retrieve out of the cache the current posts
-        private List<MessageModel> GetMessages()
+        private List<Message> GetMessages()
         {
             MemoryCache memoryCache = MemoryCache.Default;
-            var messages = (List<MessageModel>)memoryCache.Get("messages");
+            var messages = (List<Message>)memoryCache.Get("messages");
 
             if (messages == null)
             {
-                messages = new List<MessageModel>();
+                messages = new List<Message>();
                 memoryCache.Set("messages", messages, DateTimeOffset.Now.AddSeconds(100));
             }
 
             return messages;
         }
 
-        
-
         //put the list of posts back in the cache
-        private void SavePosts(List<MessageModel> messages)
+        private void SaveMessages(List<Message> messages)
         {
             MemoryCache memoryCache = MemoryCache.Default;
             memoryCache.Set("messages", messages, DateTimeOffset.Now.AddSeconds(100)); 
         }
 
         //action
+        [HttpGet]
         public IHttpActionResult GetAllMessages()
         {
-            var messages = list
-                get messages
+            //var messagesAll = GetMessages();
+            return Ok(GetMessages());
         }
 
-        //have to add RESTSHARP to your console app
-
-        //messages - not going to use class level variable i've created
-        //get post / save post
-
-        //work on api first
-        //then work on console app to call it
-
-        /*
-        public MessageModel CreateMessage(MessageModel m)
+        public IHttpActionResult CreateMessage(Message m)
         {
-            var newMessage = new MessageModel()
+            //get all messages
+            //add message
+            //save messages
+            var currentAllMessages = GetMessages();
+            if (currentAllMessages.Any())
+                m.ID = currentAllMessages.Max(x => m.ID) + 1;
+            else
+                m.ID = 1;
+
+            currentAllMessages.Add(m);
+
+            SaveMessages(currentAllMessages);
+
+            return Ok(m);
+            //delete going to be similar
+            
+            
+            
+            
+            
+            
+            /*
+            var newMessage = new Message()
             {
                 Author = m.Author,
                 Body = m.Author,
-                PostedDate = DateTime.Now
+                PostedDate = DateTime.Now,
+                ID = messagesAll.Max(x => m.ID) + 1
             };
-            return newMessage;
-        }
-        */
-
-
-
-
-
-
+            messagesAll.Add(newMessage);
+            SaveMessages(messagesAll);
+            */
+        } 
     }
 }
